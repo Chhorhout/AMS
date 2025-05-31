@@ -11,6 +11,8 @@ namespace AMS.Api.Mapping
             CreateMap<AssetsCreateDto, Assets>();
             CreateMap<Categories, CategoriesResponseDto>();
             CreateMap<CategoriesCreateDto, Categories>();
+            CreateMap<Location, LocationResponseDto>();
+            CreateMap<LocationCreateDto, Location>();
         }
     }
 }
