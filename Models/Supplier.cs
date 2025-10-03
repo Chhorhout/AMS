@@ -1,0 +1,12 @@
+namespace AMS.Api.Models
+{
+    public class Supplier
+    {
+        public Guid Id { get; set; }
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public string Address { get; set; }
+
+        public ICollection<Asset> Assets { get; set; }
+    }
+}

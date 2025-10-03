@@ -4,11 +4,17 @@ namespace AMS.Api.Dtos
 {
     public class AssetResponseDto
     {
-        public Guid AssetId { get; set; }
-        public string AssetName { get; set; }
-        public string AssetSerialNumber { get; set; }
-        public bool HaveWarranty { get; set; }
+        public Guid Id { get; set; }
+        public string Name { get; set; }
+        public string SerialNumber { get; set; }
+        public bool HasWarranty { get; set; }
         public DateTime? WarrantyStartDate { get; set; }
         public DateTime? WarrantyEndDate { get; set; }
+        public string LocationName { get; set; }
+        public string SupplierName { get; set; }
+        public string AssetTypeName { get; set; }
+        public string InvoiceNumber { get; set; }
+        public string AssetStatusHistoryName { get; set; }
+        public string TemporaryUsedRequestName { get; set; }
     }
 }

@@ -19,11 +19,18 @@ builder.Services.AddDbContext<ApplicationDbcontext>(action => {
 });
 builder.Services.AddAutoMapper(typeof(MappingProfile));
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost3000",
+        builder =>
+        {
+            builder.WithOrigins("http://localhost:3000")
+.AllowAnyHeader()
+.AllowAnyMethod()
+.AllowCredentials();
+        });
+});
 var app = builder.Build();
-
+app.UseCors("AllowLocalhost3000");
 app.MapControllers();
-
 app.Run();
-
-
-

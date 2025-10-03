@@ -13,6 +13,7 @@ namespace AMS.Api.Controller
     {
         private readonly ApplicationDbcontext _context;
         private readonly IMapper _mapper;
+        private const int PageSize = 10;
 
         public LocationController(ApplicationDbcontext context, IMapper mapper)
         {
@@ -20,11 +21,43 @@ namespace AMS.Api.Controller
             _mapper = mapper;
         }
         [HttpGet]
-        public async Task<IActionResult> GetAllLocations()
+        public async Task<ActionResult<IEnumerable<LocationResponseDto>>> GetLocations(
+            int? page,
+            string? searchTerm,
+            string? searchBy = "name"
+        )
         {
-            var locations = await _context.Locations.ToListAsync();
-            var locationsDto = _mapper.Map<List<LocationResponseDto>>(locations);
-            return Ok(locationsDto);
+            int pageNumber = page ?? 1;
+            var query = _context.Locations.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(searchTerm))
+            {
+                searchTerm = searchTerm.ToLower();
+                switch (searchBy.ToLower())
+                {
+                    case "name":
+                        query = query.Where(l => l.Name.ToLower().Contains(searchTerm));
+                        break;
+                    default:
+                        query = query.Where(l => l.Name.ToLower().Contains(searchTerm));
+                        break;
+                }
+            }
+
+            var totalItems = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling(totalItems / (double)PageSize);
+
+            var locations = await query
+                .Skip((pageNumber - 1) * PageSize)
+                .Take(PageSize)
+                .ToListAsync();
+
+            Response.Headers.Append("X-Total-Count", totalItems.ToString());
+            Response.Headers.Append("X-Total-Pages", totalPages.ToString());
+            Response.Headers.Append("X-Current-Page", pageNumber.ToString());
+            Response.Headers.Append("X-Page-Size", PageSize.ToString());
+
+            return Ok(_mapper.Map<IEnumerable<LocationResponseDto>>(locations));
         }
         [HttpGet("{id}")]
         public async Task<IActionResult> GetLocationById(Guid id)
@@ -34,8 +67,7 @@ namespace AMS.Api.Controller
             {
                 return NotFound();
             }
-            var locationDto = _mapper.Map<LocationResponseDto>(location);
-            return Ok(locationDto);
+            return Ok(_mapper.Map<LocationResponseDto>(location));
         }
         [HttpPost]
         public async Task<IActionResult> CreateLocation(LocationCreateDto locationDto)
@@ -43,8 +75,7 @@ namespace AMS.Api.Controller
             var location = _mapper.Map<Location>(locationDto);
             await _context.Locations.AddAsync(location);
             await _context.SaveChangesAsync();
-            var createdLocationDto = _mapper.Map<LocationResponseDto>(location);
-            return CreatedAtAction(nameof(GetLocationById), new { id = location.LocationId }, createdLocationDto);
+            return CreatedAtAction(nameof(GetLocationById), new { id = location.Id }, _mapper.Map<LocationResponseDto>(location));
         }
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateLocation(Guid id, LocationCreateDto locationDto)

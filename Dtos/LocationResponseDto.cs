@@ -4,7 +4,7 @@ namespace AMS.Api.Dtos
 {
     public class LocationResponseDto
     {
-        public Guid LocationId { get; set; }
-        public string LocationName { get; set; }
+        public Guid Id { get; set; }
+        public string Name { get; set; }
     }
 }
